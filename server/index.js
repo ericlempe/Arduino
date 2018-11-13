@@ -6,6 +6,7 @@ const SocketIo = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = SocketIo.listen(server);
+var request = require('request');
 
 // settings
 
@@ -34,6 +35,22 @@ mySerial.on('open', function () {
 mySerial.on('data', function (data) {
   // console.log(parseInt(data));
   console.log(data.toString());
+  var arduino = data.toString();
+  var profissional, local;
+  if (arduino == 1) {
+    profissional = 1;
+    local = 1;
+  }else if(arduino == 2) {
+    profissional = 2;
+    local = 1;
+  }
+  
+  request.post('http://144.202.36.206/locais/getCoordenadas', {
+    form:{
+      profissional: profissional,
+      local: local
+  }
+})
   io.emit('arduino:data', {
     value: data.toString()
   });
@@ -44,5 +61,4 @@ mySerial.on('err', function (data) {
 });
 
 server.listen(3000, () => {
-  console.log('Server on port 3000');
-});
+  console.log('Server on port 3000');});
